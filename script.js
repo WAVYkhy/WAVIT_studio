@@ -2801,16 +2801,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
             warningOverlay.innerHTML = `
                 <div style="background: #ffffff; color: #000000; padding: 40px 32px; border-radius: 16px; max-width: 88%; width: 460px; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,0.4); font-family: var(--font-sans); transform: translateY(20px); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);">
+                    <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 24px;">
+                        <button class="warning-lang-btn" data-lang="ko" style="background: #000000; color: #ffffff; border: none; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none;">KO</button>
+                        <button class="warning-lang-btn" data-lang="ja" style="background: #f0f0f0; color: #000000; border: none; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none;">JA</button>
+                        <button class="warning-lang-btn" data-lang="en" style="background: #f0f0f0; color: #000000; border: none; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none;">EN</button>
+                    </div>
+
                     <div style="font-size: 28px; margin-bottom: 20px;">⚠️</div>
-                    <p style="font-size: 13.5px; line-height: 1.8; word-break: keep-all; margin-bottom: 28px; font-weight: 400; color: #1a1a1a; letter-spacing: -0.01em;">
-                        Available only on PC. <br> PCでのみご利用いただけます。 <br>
+                    
+                    <p id="warning-modal-text" style="font-size: 13.5px; line-height: 1.8; word-break: keep-all; margin-bottom: 28px; font-weight: 400; color: #1a1a1a; letter-spacing: -0.01em;">
+                        PC 환경에 최적화되어 있습니다. <br> 모바일 기기에서는 웹사이트가 작동하지 않습니다.
                     </p>
-                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                        <a href="https://foriio.com/WAVITstudio" style="background: #000000; color: #ffffff; border: none; padding: 12px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: all 0.3s;">
-                            Mobile Site (モバイル版へ)
+                    
+                    <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center; align-items: center;">
+                        <a id="warning-btn-mobile" href="https://foriio.com/WAVITstudio" style="background: #000000; color: #ffffff; border: none; padding: 14px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; text-decoration: none; transition: all 0.3s; width: 100%;">
+                            모바일용 페이지로 이동
                         </a>
-                        <button id="dismiss-warning-trigger" style="background: #ffffff; color: #000000; border: 1px solid #000000; padding: 12px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 9px; font-weight: 300; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s; text-transform: uppercase;">
-                            Continue anyway (そのまま進む)
+                        <a id="warning-btn-quote" href="https://wavykhy.github.io/WAVIT-quote/" target="_blank" style="background: #f0f0f0; color: #000000; border: none; padding: 12px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; text-decoration: none; transition: all 0.3s; width: 100%;">
+                            견적 계산기
+                        </a>
+                        <button id="dismiss-warning-trigger" style="background: transparent; color: #888888; border: none; padding: 10px 24px; font-family: var(--font-sans); font-size: 10px; font-weight: 400; letter-spacing: 0.05em; text-decoration: underline; cursor: pointer; transition: all 0.3s; width: 100%;">
+                            그대로 진행
                         </button>
                     </div>
                 </div>
@@ -2824,6 +2835,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 const innerModal = warningOverlay.querySelector('div');
                 if (innerModal) innerModal.style.transform = 'translateY(0)';
             }, 200);
+
+            // Dynamic Content Translations Object
+            const modalTranslations = {
+                ko: {
+                    text: "PC 환경에 최적화되어 있습니다. <br> 모바일 기기에서는 웹사이트가 작동하지 않습니다.",
+                    mobile: "모바일용 페이지로 이동",
+                    dismiss: "그대로 진행",
+                    quote: "견적 계산기"
+                },
+                ja: {
+                    text: "PC環境に最適化されています。 <br> モバイル端末ではウェブサイトが機能しません。",
+                    mobile: "モバイル用ページへ移動",
+                    dismiss: "そのまま進む",
+                    quote: "見積もり計算機"
+                },
+                en: {
+                    text: "This site is optimized for PC environments. <br> The website does not work on mobile devices.",
+                    mobile: "Go to mobile page",
+                    dismiss: "Continue anyway",
+                    quote: "Quote Calculator"
+                }
+            };
+
+            // Setup Language Switching Interactive Listeners
+            const langButtons = warningOverlay.querySelectorAll('.warning-lang-btn');
+            const modalText = warningOverlay.querySelector('#warning-modal-text');
+            const btnMobile = warningOverlay.querySelector('#warning-btn-mobile');
+            const btnDismiss = warningOverlay.querySelector('#dismiss-warning-trigger');
+            const btnQuote = warningOverlay.querySelector('#warning-btn-quote');
+
+            langButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const lang = btn.getAttribute('data-lang');
+                    
+                    // Toggle Tab Button Active Visual States
+                    langButtons.forEach(b => {
+                        b.style.background = '#f0f0f0';
+                        b.style.color = '#000000';
+                    });
+                    btn.style.background = '#000000';
+                    btn.style.color = '#ffffff';
+
+                    // Reactively switch string layouts based on active tab
+                    if (modalTranslations[lang]) {
+                        modalText.innerHTML = modalTranslations[lang].text;
+                        btnMobile.textContent = modalTranslations[lang].mobile;
+                        btnDismiss.textContent = modalTranslations[lang].dismiss;
+                        btnQuote.textContent = modalTranslations[lang].quote;
+                    }
+                });
+            });
 
             // Handle modal close event dismiss
             const dismissBtn = warningOverlay.querySelector('#dismiss-warning-trigger');
@@ -2842,4 +2904,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize detection immediately
     detectTouchOrMobileDevice();
+
+    // --- Quote Button Text Animation ---
+    const quoteTextContent = document.getElementById('quote-text-content');
+    if (quoteTextContent) {
+        const quoteTexts = ["견적 계산기", "見積もり計算機", "Quote Calculator"];
+        let quoteIndex = 0;
+
+        setInterval(() => {
+            // Slide up and fade out
+            quoteTextContent.style.transform = 'translateY(-100%)';
+            quoteTextContent.style.opacity = '0';
+
+            setTimeout(() => {
+                // Change text and prepare at the bottom
+                quoteIndex = (quoteIndex + 1) % quoteTexts.length;
+                quoteTextContent.textContent = quoteTexts[quoteIndex];
+                quoteTextContent.style.transition = 'none';
+                quoteTextContent.style.transform = 'translateY(100%)';
+
+                // Slide up and fade in
+                setTimeout(() => {
+                    quoteTextContent.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease';
+                    quoteTextContent.style.transform = 'translateY(0)';
+                    quoteTextContent.style.opacity = '1';
+                }, 50);
+            }, 600); // Wait for the fade-out transition to finish
+        }, 3000); // Change text every 3 seconds
+    }
 });
