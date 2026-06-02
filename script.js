@@ -5,6 +5,10 @@
    ------------------------------------------------------------- */
 
 document.addEventListener('DOMContentLoaded', () => {
+    function trackEvent(name, params = {}) {
+        if (typeof gtag !== 'function') return;
+        gtag('event', name, params);
+    }
     // Dynamic loading of YouTube IFrame API
     if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
         const tag = document.createElement('script');
@@ -632,6 +636,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7. Contact Submission Success Feedback
     // -------------------------------------------------------------
     window.handleContactSubmit = function () {
+        trackEvent('contact_submit', {
+            form_id: 'contact-us-form',
+            submit_location: 'contact_panel'
+        });
         const form = document.getElementById('contact-us-form');
         const container = form.parentElement;
 
@@ -727,11 +735,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('click', (e) => {
         const clickedVideo = (e.target && typeof e.target.closest === 'function') ? e.target.closest('#motion-graphics .mg-video-rect, #interaction-3d .mg-video-rect, #live2d-section .mg-video-rect') : null;
         if (clickedVideo) {
+            const section = clickedVideo.closest('section') ? clickedVideo.closest('section').id : '';
             const activeIframe = clickedVideo.querySelector('iframe');
             if (activeIframe && activeIframe.src) {
-                // Extract the YouTube video ID securely from the embed URL
                 const videoIdMatch = activeIframe.src.match(/\/embed\/([a-zA-Z0-9_-]+)/);
                 if (videoIdMatch && videoIdMatch[1]) {
+                    trackEvent('youtube_open', {
+                        section_id: section,
+                        youtube_id: videoIdMatch[1]
+                    });
                     window.open(`https://www.youtube.com/watch?v=${videoIdMatch[1]}`, '_blank');
                 }
             }
@@ -1836,6 +1848,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const emailText = document.getElementById('email-text');
     if (emailText) {
         emailText.addEventListener('click', () => {
+            trackEvent('email_copy', { contact_type: 'email' });
             navigator.clipboard.writeText('wkjnaver@gmail.com');
             const follower = document.querySelector('.custom-cursor-follower');
             if (follower) {
@@ -2931,5 +2944,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 50);
             }, 600); // Wait for the fade-out transition to finish
         }, 3000); // Change text every 3 seconds
+    }
+
+    // GA4 Standalone Event Listeners
+    document.querySelectorAll('.nav-item').forEach((item) => {
+        item.addEventListener('click', () => {
+            trackEvent('nav_click', {
+                nav_target: item.getAttribute('data-target') || '',
+                nav_category: item.getAttribute('data-category') || '',
+                nav_text: item.textContent.trim()
+            });
+        });
+    });
+
+    const quoteBtn = document.getElementById('quote-btn');
+    if (quoteBtn) {
+        quoteBtn.addEventListener('click', () => {
+            trackEvent('quote_click', {
+                link_url: quoteBtn.getAttribute('href') || '',
+                link_text: quoteBtn.textContent.trim()
+            });
+        });
+    }
+
+    [
+        ['s2-play-btn', 'motion_graphics', 'play_toggle'],
+        ['s3-play-btn', 'interaction_3d', 'play_toggle'],
+        ['s4-play-btn', 'live2d', 'play_toggle'],
+        ['s2-mute-btn', 'motion_graphics', 'mute_toggle'],
+        ['s3-mute-btn', 'interaction_3d', 'mute_toggle'],
+        ['s4-mute-btn', 'live2d', 'mute_toggle']
+    ].forEach(([id, section, control]) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('click', () => {
+                trackEvent('media_control', {
+                    section_id: section,
+                    control_type: control,
+                    control_id: id
+                });
+            });
+        }
+    });
+
+    const viewToggleBtn = document.getElementById('view-toggle-btn');
+    if (viewToggleBtn) {
+        viewToggleBtn.addEventListener('click', () => {
+            trackEvent('view_toggle', {
+                toggle_label: viewToggleBtn.textContent.trim()
+            });
+        });
     }
 });
