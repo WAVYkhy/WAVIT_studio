@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------
-   WAVY STUDIO - Interactive & Creative Scripts
+   WAVIT STUDIO - Interactive & Creative Scripts
    Implements magnetic buttons, liquid wave transitions,
    interactive custom cursor, and dynamic portfolio showcases.
    ------------------------------------------------------------- */
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <span class="detail-label">Transmission Successful</span>
                     <h3 style="font-family: var(--font-serif); font-size: 36px; font-weight: 400; margin: 10px 0 15px 0;">We hear you, loud and clear.</h3>
-                    <p style="color: var(--text-muted); font-size: 14px; max-width: 450px; line-height: 1.7; margin-bottom: 30px;">Thank you for reaching out to WAVY Studio. A representative from our visual mechanics division will make contact with your digital coordinates shortly.</p>
+                    <p style="color: var(--text-muted); font-size: 14px; max-width: 450px; line-height: 1.7; margin-bottom: 30px;">Thank you for reaching out to WAVIT Studio. A representative from our visual mechanics division will make contact with your digital coordinates shortly.</p>
                 </div>
             `;
             container.style.opacity = '1';
@@ -2806,7 +2806,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         Available only on PC. <br> PCでのみご利用いただけます。 <br>
                     </p>
                     <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                        <a href="https://foriio.com/WAVYmv" style="background: #000000; color: #ffffff; border: none; padding: 12px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: all 0.3s;">
+                        <a href="https://foriio.com/WAVITstudio" style="background: #000000; color: #ffffff; border: none; padding: 12px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: all 0.3s;">
                             Mobile Site (モバイル版へ)
                         </a>
                         <button id="dismiss-warning-trigger" style="background: #ffffff; color: #000000; border: 1px solid #000000; padding: 12px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 9px; font-weight: 300; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s; text-transform: uppercase;">

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------
-   WAVY STUDIO - Style & Design System
+   WAVIT STUDIO - Style & Design System
    Highly premium, immersive creative studio theme.
    ------------------------------------------------------------- */
 
@@ -363,7 +363,7 @@ body.hovered-close .custom-cursor-follower {
 }
 
 /* -------------------------------------------------------------
-   Center Title (STUDIO WAVY)
+   Center Title (STUDIO WAVIT)
    ------------------------------------------------------------- */
 .center-title {
     display: flex;
@@ -383,7 +383,7 @@ body.hovered-close .custom-cursor-follower {
     letter-spacing: 0.79em;
     text-indent: 0.79em;
     opacity: 0; /* Keep hidden until animation starts */
-    /* Delay the label fade-in so WAVY appears first */
+    /* Delay the label fade-in so WAVIT appears first */
     animation: fadeInText 2s ease 1s forwards;
 }
 
@@ -401,7 +401,7 @@ body.hovered-close .custom-cursor-follower {
     animation: title-entrance 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards, floatTitle 6s ease-in-out infinite alternate 2.5s;
 }
 
-/* Elegant Entrance Animation for WAVY text */
+/* Elegant Entrance Animation for WAVIT text */
 @keyframes title-entrance {
     0% { opacity: 0; transform: translateY(60px) scale(0.85); filter: blur(20px); }
     100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
@@ -425,7 +425,7 @@ body.hovered-close .custom-cursor-follower {
     animation: moveV 4s ease-in-out infinite alternate;
 }
 
-.main-title .letter-y {
+.main-title .letter-i, .main-title .letter-t {
     letter-spacing: 0;
     animation: moveY 4s ease-in-out infinite alternate;
 }
