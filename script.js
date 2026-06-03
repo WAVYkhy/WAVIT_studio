@@ -736,15 +736,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const clickedVideo = (e.target && typeof e.target.closest === 'function') ? e.target.closest('#motion-graphics .mg-video-rect, #interaction-3d .mg-video-rect, #live2d-section .mg-video-rect') : null;
         if (clickedVideo) {
             const section = clickedVideo.closest('section') ? clickedVideo.closest('section').id : '';
-            const activeIframe = clickedVideo.querySelector('iframe');
-            if (activeIframe && activeIframe.src) {
-                const videoIdMatch = activeIframe.src.match(/\/embed\/([a-zA-Z0-9_-]+)/);
-                if (videoIdMatch && videoIdMatch[1]) {
+
+            // 1. Determine the exact active iframe
+            let activeIframe = clickedVideo.querySelector('iframe');
+            if (section === 'motion-graphics' && typeof floatData !== 'undefined') {
+                const matchedItem = floatData.find(item => item.el.contains(clickedVideo));
+                if (matchedItem) activeIframe = matchedItem.active;
+            }
+
+            if (activeIframe) {
+                let videoIdToOpen = null;
+
+                // 2. Ask the YouTube Player API directly for the real playing video ID
+                if (typeof window.ytPlayers !== 'undefined' && window.ytPlayers.has(activeIframe)) {
+                    const player = window.ytPlayers.get(activeIframe);
+                    if (player && typeof player.getVideoData === 'function') {
+                        const videoData = player.getVideoData();
+                        if (videoData && videoData.video_id) {
+                            videoIdToOpen = videoData.video_id;
+                        }
+                    }
+                }
+
+                // 3. Fallback to parsing the src attribute (for initial load or static sections)
+                if (!videoIdToOpen && activeIframe.src) {
+                    const match = activeIframe.src.match(/\/embed\/([a-zA-Z0-9_-]+)/);
+                    if (match) videoIdToOpen = match[1];
+                }
+
+                // 4. Open the verified video
+                if (videoIdToOpen) {
                     trackEvent('youtube_open', {
                         section_id: section,
-                        youtube_id: videoIdMatch[1]
+                        youtube_id: videoIdToOpen
                     });
-                    window.open(`https://www.youtube.com/watch?v=${videoIdMatch[1]}`, '_blank');
+                    window.open(`https://www.youtube.com/watch?v=${videoIdToOpen}`, '_blank');
                 }
             }
         }
@@ -831,19 +857,20 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const videoPool = [
-        { id: "Koc9PIFQkjA", start: 28 },
-        { id: "WiU-ITTfPEg", start: 0 },
-        { id: "Lxnl2D95EDU", start: 34 },
-        { id: "D_j5DKR2M3w", start: 0 },
-        { id: "Ax4QGQF7Tjs", start: 0 },
-        { id: "vTjvYr8cuy8", start: 0 },
-        { id: "FPu5vUQmfW8", start: 85 },
-        { id: "CkRY79b0IsI", start: 0 },
-        { id: "dDBlbs1FhTw", start: 0 },
-        { id: "eEKzjTCCmPg", start: 12 },
-        { id: "q8KgjqM-Bfs", start: 0 },
-        { id: "MTxIMAfL1nw", start: 0 }
-    ];
+        { url: "https://youtu.be/_CZxSnLBakA", start: 0 },
+        { url: "https://youtu.be/Koc9PIFQkjA", start: 28 },
+        { url: "https://youtu.be/WiU-ITTfPEg", start: 0 },
+        { url: "https://youtu.be/Lxnl2D95EDU", start: 34 },
+        { url: "https://youtu.be/D_j5DKR2M3w", start: 0 },
+        { url: "https://youtu.be/Ax4QGQF7Tjs", start: 0 },
+        { url: "https://youtu.be/vTjvYr8cuy8", start: 0 },
+        { url: "https://youtu.be/FPu5vUQmfW8", start: 85 },
+        { url: "https://youtu.be/CkRY79b0IsI", start: 0 },
+        { url: "https://youtu.be/dDBlbs1FhTw", start: 0 },
+        { url: "https://youtu.be/eEKzjTCCmPg", start: 12 },
+        { url: "https://youtu.be/q8KgjqM-Bfs", start: 0 },
+        { url: "https://youtu.be/MTxIMAfL1nw", start: 0 }
+    ].map(item => ({ ...item, id: item.url.split('youtu.be/')[1].split('?')[0] }));
     let videoIndex = 3; // First 3 are rendered in HTML
 
     // Helper: Minimalist Smash Shape Burst Animation
@@ -1117,6 +1144,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (activePlayer && typeof activePlayer.loadVideoById === 'function') {
                         activePlayer.loadVideoById({ videoId: vidData.id, startSeconds: vidData.start || 0 });
                         activePlayer.mute();
+                    } else {
+                        item.active.src = newSrc;
                     }
 
                     item.justSwapped = true;
@@ -1604,36 +1633,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
     const heroVideoPool = [
-        { id: "Koc9PIFQkjA", start: 48 },
-        { id: "wb1Lllv2cYI", start: 88 },
-        { id: "98k_kijNi6Q", start: 101 },
-        { id: "iG6J5uXvwJ8", start: 61 },
-        { id: "6mlTDTDvEgk", start: 89 },
-        { id: "WiU-ITTfPEg", start: 22 },
-        { id: "WVA__b3UvBo", start: 30 },
-        { id: "Lxnl2D95EDU", start: 75 },
-        { id: "E_gnB1Az9Vs", start: 24 },
-        { id: "_07BIWr67_4", start: 37 },
-        { id: "goIWgzD0Ta8", start: 45 },
-        { id: "D_j5DKR2M3w", start: 0 },
-        { id: "vTjvYr8cuy8", start: 19 },
-        { id: "2U7r6-5-UlU", start: 68 },
-        { id: "Ax4QGQF7Tjs", start: 16 },
-        { id: "ze70fZiYGBA", start: 67 },
-        { id: "CkRY79b0IsI", start: 20 },
-        { id: "dDBlbs1FhTw", start: 0 },
-        { id: "q8KgjqM-Bfs", start: 80 },
-        { id: "eEKzjTCCmPg", start: 20 },
-        { id: "FPu5vUQmfW8", start: 166 },
-        { id: "u-0xFcJZcAk", start: 64 },
-        { id: "k-3d-X15TKs", start: 61 },
-        { id: "56aP7weYHBc", start: 28 },
-        { id: "6AoVIXVLX9Q", start: 54 },
-        { id: "ZRZ3ghZN3tU", start: 40 },
-        { id: "MTxIMAfL1nw", start: 7 }
-    ];
+        { url: "https://youtu.be/Koc9PIFQkjA", start: 48 },
+        { url: "https://youtu.be/_CZxSnLBakA", start: 142 },
+        { url: "https://youtu.be/wb1Lllv2cYI", start: 88 },
+        { url: "https://youtu.be/_CZxSnLBakA", start: 19 },
+        { url: "https://youtu.be/98k_kijNi6Q", start: 101 },
+        { url: "https://youtu.be/_CZxSnLBakA", start: 58 },
+        { url: "https://youtu.be/iG6J5uXvwJ8", start: 61 },
+        { url: "https://youtu.be/6mlTDTDvEgk", start: 89 },
+        { url: "https://youtu.be/WiU-ITTfPEg", start: 22 },
+        { url: "https://youtu.be/WVA__b3UvBo", start: 30 },
+        { url: "https://youtu.be/Lxnl2D95EDU", start: 75 },
+        { url: "https://youtu.be/E_gnB1Az9Vs", start: 24 },
+        { url: "https://youtu.be/_07BIWr67_4", start: 37 },
+        { url: "https://youtu.be/goIWgzD0Ta8", start: 45 },
+        { url: "https://youtu.be/D_j5DKR2M3w", start: 0 },
+        { url: "https://youtu.be/vTjvYr8cuy8", start: 19 },
+        { url: "https://youtu.be/2U7r6-5-UlU", start: 68 },
+        { url: "https://youtu.be/Ax4QGQF7Tjs", start: 16 },
+        { url: "https://youtu.be/ze70fZiYGBA", start: 67 },
+        { url: "https://youtu.be/CkRY79b0IsI", start: 20 },
+        { url: "https://youtu.be/dDBlbs1FhTw", start: 0 },
+        { url: "https://youtu.be/q8KgjqM-Bfs", start: 80 },
+        { url: "https://youtu.be/eEKzjTCCmPg", start: 20 },
+        { url: "https://youtu.be/FPu5vUQmfW8", start: 166 },
+        { url: "https://youtu.be/u-0xFcJZcAk", start: 64 },
+        { url: "https://youtu.be/k-3d-X15TKs", start: 61 },
+        { url: "https://youtu.be/56aP7weYHBc", start: 28 },
+        { url: "https://youtu.be/6AoVIXVLX9Q", start: 54 },
+        { url: "https://youtu.be/ZRZ3ghZN3tU", start: 40 },
+        { url: "https://youtu.be/MTxIMAfL1nw", start: 7 }
+    ].map(item => ({ ...item, id: item.url.split('youtu.be/')[1].split('?')[0] }));
 
     // Setup Hero Video Double Buffering & Manual Controls (Interactive next cursor & skip)
     (function () {
@@ -1919,10 +1950,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentIdx3D = -1;
 
     const vidData3D = [
-        { id: 'Lxnl2D95EDU', start: 199 },
-        { id: '_07BIWr67_4', start: 5 },
-        { id: 'WVA__b3UvBo', start: 0 }
-    ];
+        { url: "https://youtu.be/Lxnl2D95EDU", start: 199 },
+        { url: "https://youtu.be/_07BIWr67_4", start: 5 },
+        { url: "https://youtu.be/WVA__b3UvBo", start: 0 }
+    ].map(item => ({ ...item, id: item.url.split('youtu.be/')[1].split('?')[0] }));
 
     // --- Section 4: Live 2D 3D Carousel Logic System ---
     const section4 = document.getElementById('live2d-section'); // Match your exact Section 4 ID
@@ -1932,13 +1963,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let prevIdx4D = 0;
 
     const vidData4D = [
-        { id: 'goIWgzD0Ta8', start: 30 },
-        { id: 'iG6J5uXvwJ8', start: 60 },
-        { id: 'k-3d-X15TKs', start: 61 },
-        { id: 'ZRZ3ghZN3tU', start: 43 },
-        { id: '6AoVIXVLX9Q', start: 50 },
-        { id: '2U7r6-5-UlU', start: 39 }
-    ];
+        { url: "https://youtu.be/goIWgzD0Ta8", start: 30 },
+        { url: "https://youtu.be/iG6J5uXvwJ8", start: 60 },
+        { url: "https://youtu.be/k-3d-X15TKs", start: 61 },
+        { url: "https://youtu.be/ZRZ3ghZN3tU", start: 43 },
+        { url: "https://youtu.be/6AoVIXVLX9Q", start: 50 },
+        { url: "https://youtu.be/2U7r6-5-UlU", start: 39 }
+    ].map(item => ({ ...item, id: item.url.split('youtu.be/')[1].split('?')[0] }));
 
     const itemsData4D = Array.from(carouselItems4D).map((el, index) => {
         const iframe = el.querySelector('iframe');
@@ -2554,14 +2585,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.querySelector('.back-btn'); // 이전 버튼 추가
 
     if (entireWorksGrid) {
-        const youtubeIds = [
-            "Lxnl2D95EDU", "Koc9PIFQkjA", "iG6J5uXvwJ8", "q8KgjqM-Bfs",
-            "6mlTDTDvEgk", "WiU-ITTfPEg", "wb1Lllv2cYI", "_07BIWr67_4",
-            "FPu5vUQmfW8", "98k_kijNi6Q", "goIWgzD0Ta8", "vTjvYr8cuy8",
-            "D_j5DKR2M3w", "Ax4QGQF7Tjs", "2U7r6-5-UlU", "CkRY79b0IsI",
-            "eEKzjTCCmPg", "dDBlbs1FhTw", "k-3d-X15TKs", "6AoVIXVLX9Q",
-            "ZRZ3ghZN3tU", "MTxIMAfL1nw"
+        const youtubeUrls = [
+            "https://youtu.be/_CZxSnLBakA",
+            "https://youtu.be/Lxnl2D95EDU", "https://youtu.be/Koc9PIFQkjA", "https://youtu.be/iG6J5uXvwJ8", "https://youtu.be/q8KgjqM-Bfs",
+            "https://youtu.be/6mlTDTDvEgk", "https://youtu.be/WiU-ITTfPEg", "https://youtu.be/wb1Lllv2cYI", "https://youtu.be/_07BIWr67_4",
+            "https://youtu.be/FPu5vUQmfW8", "https://youtu.be/98k_kijNi6Q", "https://youtu.be/goIWgzD0Ta8", "https://youtu.be/vTjvYr8cuy8",
+            "https://youtu.be/D_j5DKR2M3w", "https://youtu.be/Ax4QGQF7Tjs", "https://youtu.be/2U7r6-5-UlU", "https://youtu.be/CkRY79b0IsI",
+            "https://youtu.be/eEKzjTCCmPg", "https://youtu.be/dDBlbs1FhTw", "https://youtu.be/k-3d-X15TKs", "https://youtu.be/6AoVIXVLX9Q",
+            "https://youtu.be/ZRZ3ghZN3tU", "https://youtu.be/MTxIMAfL1nw"
         ];
+        const youtubeIds = youtubeUrls.map(url => url.split('youtu.be/')[1].split('?')[0]);
 
         let gridHtml = '';
         youtubeIds.forEach(id => {
@@ -2881,7 +2914,7 @@ document.addEventListener('DOMContentLoaded', () => {
             langButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const lang = btn.getAttribute('data-lang');
-                    
+
                     // Toggle Tab Button Active Visual States
                     langButtons.forEach(b => {
                         b.style.background = '#f0f0f0';
