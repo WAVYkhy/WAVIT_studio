@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Global listener to detect YouTube player status (Muted, Volume, Buffering)
     window.addEventListener('message', (e) => {
-        if (e.origin !== 'https://www.youtube-nocookie.com') return;
+        if (e.origin !== 'https://www.youtube.com') return;
         try {
             const data = JSON.parse(e.data);
             if (data.event === 'infoDelivery' && data.info && typeof floatData !== 'undefined') {
@@ -842,6 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const alphaVideoPool = [
+        "",
         "https://pub-e35da0e76d7041cd886660ef52aa63fc.r2.dev/wavit-whichesnight.webm",
         "https://pub-e35da0e76d7041cd886660ef52aa63fc.r2.dev/wavit-%ED%98%B8%EC%A0%91%EB%B0%98%EC%A0%90.webm",
         "https://pub-e35da0e76d7041cd886660ef52aa63fc.r2.dev/wavit-vaizravana.webm",
@@ -1131,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.vidIdx >= 0 && item.vidIdx < totalVideos) {
                 const vidData = videoPool[item.vidIdx];
                 const startParamNew = vidData.start > 0 ? `&start=${vidData.start}` : '';
-                const newSrc = `https://www.youtube-nocookie.com/embed/${vidData.id}?${startParamNew}&autoplay=1&mute=1&loop=1&playlist=${vidData.id}&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin}`;
+                const newSrc = `https://www.youtube.com/embed/${vidData.id}?${startParamNew}&autoplay=1&mute=1&loop=1&playlist=${vidData.id}&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin}`;
 
                 item.justSwapped = false;
                 if (item.currentVidId !== vidData.id) {
@@ -1472,7 +1473,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                             const startParam = nextVid.start > 0 ? `&start=${nextVid.start}` : '';
                             const originStr = window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin;
-                            const fallbackSrc = `https://www.youtube-nocookie.com/embed/${nextVid.id}?autoplay=1&mute=1&loop=1&playlist=${nextVid.id}&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${originStr}${startParam}`;
+                            const fallbackSrc = `https://www.youtube.com/embed/${nextVid.id}?autoplay=1&mute=1&loop=1&playlist=${nextVid.id}&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${originStr}${startParam}`;
 
                             const bufferPlayer = getOrCreatePlayer(item.buffer);
 
@@ -1667,6 +1668,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ].map(item => ({ ...item, id: item.url.split('youtu.be/')[1].split('?')[0] }));
 
     // Setup Hero Video Double Buffering & Manual Controls (Interactive next cursor & skip)
+    // Setup Hero Video Double Buffering & Manual Controls (Interactive next cursor & skip)
     (function () {
         const iframe1 = document.getElementById('hero-yt-1');
         const iframe2 = document.getElementById('hero-yt-2');
@@ -1680,87 +1682,69 @@ document.addEventListener('DOMContentLoaded', () => {
             function getYTUrl(index) {
                 const vid = heroVideoPool[index];
                 const startParam = vid.start > 0 ? '&start=' + vid.start : '';
-                // Inject window.location.origin to satisfy iframe API CORS policy
-                return 'https://www.youtube-nocookie.com/embed/' + vid.id + '?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&enablejsapi=1&origin=' + (window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin) + startParam;
+                // 도메인 불일치 에러를 방지하기 위해 youtube.com으로 통일합니다.
+                return 'https://www.youtube.com/embed/' + vid.id + '?autoplay=1&mute=1&controls=0&playsinline=1&modestbranding=1&enablejsapi=1&origin=' + (window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin) + startParam;
             }
 
-            // Initialize first two videos
+            // 첫 두 영상 초기화
             iframe1.src = getYTUrl(currentVidIndex);
             let nextVidIndex = (currentVidIndex + 1) % heroVideoPool.length;
             iframe2.src = getYTUrl(nextVidIndex);
 
-            // Wait for the YouTube iframe to load before revealing the background
+            // 로딩 스크린 해제 시점 제어
             iframe1.addEventListener('load', () => {
-                // 1.5-second buffer to ensure the YouTube player has buffered and is physically playing
                 setTimeout(() => {
                     const loader = document.getElementById('initial-loader-bg');
                     if (loader) {
                         loader.style.opacity = '0';
-                        iframe1.style.opacity = '1'; // Ensure the iframe is fully visible!
-                        // Reveal cursor and navigation buttons smoothly
+                        iframe1.style.opacity = '1';
                         document.body.classList.remove('is-loading');
-                        setTimeout(() => loader.remove(), 1500); // Remove from DOM after transition completes
+                        setTimeout(() => loader.remove(), 1500);
                     }
                 }, 1500);
             }, { once: true });
 
+            // [수정] 크로스 도메인 오류가 없는 강력한 네이티브 src 교체 로직
             function transitionToNextVideo() {
                 const heroRect = heroSection.getBoundingClientRect();
                 if (heroRect.bottom < 0 || heroRect.top > window.innerHeight) {
-                    return; // Prevent background bandwidth consumption when not visible
+                    return; // 화면에 안 보일 때는 연산 및 대역폭 절약
                 }
 
                 currentVidIndex = (currentVidIndex + 1) % heroVideoPool.length;
-                nextVidIndex = (currentVidIndex + 1) % heroVideoPool.length;
+                let nextVidIndex = (currentVidIndex + 1) % heroVideoPool.length;
 
-                const nextVidData = heroVideoPool[nextVidIndex];
-                const currentVidData = heroVideoPool[currentVidIndex];
                 if (activeIframe === 1) {
-                    // Rewind iframe2 to the exact start time just before showing it
-                    getOrCreatePlayer(iframe2, (player) => {
-                        player.seekTo(currentVidData.start || 0, true);
-                    });
-
+                    // 현재 재생 중인 1번 버퍼를 숨기고, 대기 중이던 2번 버퍼를 활성화
                     iframe1.style.opacity = '0';
                     iframe2.style.opacity = '1';
                     activeIframe = 2;
 
-                    // Preload the next video in the hidden iframe1
+                    // 숨겨진 1번 버퍼에 그 다음 영상을 백그라운드에서 미리 로드 시작
                     setTimeout(() => {
-                        getOrCreatePlayer(iframe1, (player) => {
-                            player.loadVideoById({ videoId: nextVidData.id, startSeconds: nextVidData.start || 0 });
-                            player.mute();
-                        });
+                        iframe1.src = getYTUrl(nextVidIndex);
                     }, 1000);
                 } else {
-                    // Rewind iframe1 to the exact start time just before showing it
-                    getOrCreatePlayer(iframe1, (player) => {
-                        player.seekTo(currentVidData.start || 0, true);
-                    });
-
+                    // 현재 재생 중인 2번 버퍼를 숨기고, 대기 중이던 1번 버퍼를 활성화
                     iframe2.style.opacity = '0';
                     iframe1.style.opacity = '1';
                     activeIframe = 1;
 
-                    // Preload the next video in the hidden iframe2
+                    // 숨겨진 2번 버퍼에 그 다음 영상을 백그라운드에서 미리 로드 시작
                     setTimeout(() => {
-                        getOrCreatePlayer(iframe2, (player) => {
-                            player.loadVideoById({ videoId: nextVidData.id, startSeconds: nextVidData.start || 0 });
-                            player.mute();
-                        });
+                        iframe2.src = getYTUrl(nextVidIndex);
                     }, 1000);
                 }
             }
 
-            // Change interval to 6 seconds (6000ms)
+            // 6초마다 영상 전환
             autoPlayInterval = setInterval(transitionToNextVideo, 6000);
 
             // Custom "Next" Cursor logic for Hero 'empty space'
             heroSection.addEventListener('mousemove', (e) => {
-                // If not hovering over nav items or buttons
                 if (e.target && typeof e.target.closest === 'function' && !e.target.closest('.nav-item, button, a')) {
                     cursor.classList.add('next-cursor-active');
-                    cursor.innerHTML = '>'; // Add the icon content
+                    cursor.innerHTML = '>';
                 } else {
                     cursor.classList.remove('next-cursor-active');
                     cursor.innerHTML = '';
@@ -1776,48 +1760,37 @@ document.addEventListener('DOMContentLoaded', () => {
             let clickCount = 0;
             let clickResetTimer;
 
-            // Handle click on hero 'empty space' to skip video & animate cursor
+            // 빈 공간 클릭 시 스킵 기능
             heroSection.addEventListener('click', (e) => {
                 if (e.target && typeof e.target.closest === 'function' && e.target.closest('.nav-item, button, a')) return;
 
                 const now = Date.now();
-
-                // Spam click detection logic
                 clickCount++;
                 clearTimeout(clickResetTimer);
                 clickResetTimer = setTimeout(() => { clickCount = 0; }, 1000);
 
                 if (clickCount >= 4) {
-                    // Add 'calm-down' class to follower instead of cursor
                     follower.classList.add('calm-down');
-                    setTimeout(() => {
-                        follower.classList.remove('calm-down');
-                    }, 1500); // Matches the 1.5s lifecycle animation
+                    setTimeout(() => { follower.classList.remove('calm-down'); }, 1500);
                 }
 
-                // 1-Second Cooldown logic
-                if (now - lastClickTime < 1000) {
-                    return; // Ignore clicks if within 1 second
-                }
+                if (now - lastClickTime < 1000) return;
                 lastClickTime = now;
 
-                // Stop the automatic rotation forever
                 if (autoPlayInterval) {
                     clearInterval(autoPlayInterval);
                     autoPlayInterval = null;
                 }
 
-                // Transition video manually
                 transitionToNextVideo();
 
-                // Temporarily add 'clicked' class to both arrow and follower for synchronized animation
                 cursor.classList.add('clicked');
                 follower.classList.add('clicked');
 
                 setTimeout(() => {
                     cursor.classList.remove('clicked');
                     follower.classList.remove('clicked');
-                }, 800); // Matches the 0.8s animation duration
+                }, 800);
             });
         }
     })();
@@ -1978,7 +1951,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // [FIX] Dynamically inject YouTube iframe src with API & CORS policies enabled
         if (iframe && vidData) {
             const startParam = vidData.start > 0 ? `&start=${vidData.start}` : '';
-            iframe.src = `https://www.youtube-nocookie.com/embed/${vidData.id}?autoplay=0&mute=1&loop=1&playlist=${vidData.id}&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin}${startParam}`;
+            iframe.src = `https://www.youtube.com/embed/${vidData.id}?autoplay=0&mute=1&loop=1&playlist=${vidData.id}&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin}${startParam}`;
         }
 
         return {
@@ -2620,7 +2593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const img = card.querySelector('img');
 
                     iframe = document.createElement('iframe');
-                    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&enablejsapi=1&autoplay=1&origin=${window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin}`;
+                    iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&enablejsapi=1&autoplay=1&origin=${window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin}`;
                     iframe.style.cssText = "pointer-events: none; width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; z-index: 5;";
                     iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; compute-pressure');
 
