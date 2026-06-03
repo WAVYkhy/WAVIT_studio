@@ -2987,11 +2987,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const viewToggleBtn = document.getElementById('view-toggle-btn');
-    if (viewToggleBtn) {
-        viewToggleBtn.addEventListener('click', () => {
+    const gaViewToggleBtn = document.getElementById('view-toggle-btn');
+    if (gaViewToggleBtn) {
+        gaViewToggleBtn.addEventListener('click', () => {
             trackEvent('view_toggle', {
-                toggle_label: viewToggleBtn.textContent.trim()
+                toggle_label: gaViewToggleBtn.textContent.trim()
             });
         });
     }
