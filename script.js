@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 3. Prevent the cursor from hiding if hovering over the contact section
-        const isHoveringContact = e.target.closest('#contact-section');
+        const isHoveringContact = (e.target && typeof e.target.closest === 'function') ? e.target.closest('#contact-section') : null;
 
         // 4. Set a new timeout to hide cursors after 100ms of inactivity (only if outside contact section)
         if (!isHoveringContact) {
