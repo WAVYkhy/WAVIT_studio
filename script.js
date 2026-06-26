@@ -2833,7 +2833,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </p>
                     
                     <div style="display: flex; flex-direction: column; gap: 8px; justify-content: center; align-items: center;">
-                        <a id="warning-btn-mobile" href="https://foriio.com/WAVITstudio" style="background: #000000; color: #ffffff; border: none; padding: 14px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; text-decoration: none; transition: all 0.3s; width: 100%;">
+                        <a id="warning-btn-mobile" href="https://wavykhy.github.io/WAVIT_studio_2/" style="background: #000000; color: #ffffff; border: none; padding: 14px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; text-decoration: none; transition: all 0.3s; width: 100%;">
                             모바일용 페이지로 이동
                         </a>
                         <a id="warning-btn-quote" href="https://wavykhy.github.io/WAVIT-quote/" target="_blank" style="background: #f0f0f0; color: #000000; border: none; padding: 12px 24px; border-radius: 30px; font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; text-decoration: none; transition: all 0.3s; width: 100%;">
